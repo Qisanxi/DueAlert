@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     # Firebase
     FIREBASE_PROJECT_ID: str
     FIREBASE_KEY_PATH: str = "serviceAccountKey.json"
-    FIREBASE_API_KEY: str 
     
     # Gemini
     GEMINI_API_KEY: str
