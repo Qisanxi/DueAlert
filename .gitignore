@@ -1,0 +1,55 @@
+# ─── Python / Backend ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+backend/env/
+backend/.env
+backend/.env.*
+backend/*.egg-info/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.mypy_cache/
+backend/serviceAccountKey
+
+# ─── Node / Frontend ───────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.env.*.local
+frontend/.vite/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ─── Firebase / Secrets ────────────────────────────────────
+serviceAccountKey.json
+**/*.json.key
+**/*.pem
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+
+# ─── IDE / OS ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─── Logs / Temp ───────────────────────────────────────────
+*.log
+logs/
+tmp/
+temp/
+.cache/
+
