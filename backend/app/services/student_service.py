@@ -39,7 +39,7 @@ class StudentService:
         return StudentResponse(**student_dict)
     
     async def bulk_upload(self, center_id: str, file: UploadFile) -> CSVUploadResponse:
-        """Upload CSV and create students with AI analysis."""
+        """Upload CSV and create students with AI analysis. Survives individual failures."""
         contents = await file.read()
         df = pd.read_csv(StringIO(contents.decode("utf-8")))
         
@@ -51,34 +51,50 @@ class StudentService:
         if missing:
             raise ValueError(f"Missing columns: {', '.join(missing)}")
         
+        # Drop completely empty rows
+        df = df.dropna(subset=["name", "phone", "due_amount"])
+        
         created = []
-        for _, row in df.iterrows():
-            student_dict = {
-                "center_id": center_id,
-                "name": str(row["name"]),
-                "phone": str(row["phone"]),
-                "parent_name": str(row["parent_name"]),
-                "course": str(row["course"]),
-                "monthly_fee": float(row["monthly_fee"]),
-                "due_amount": float(row["due_amount"]),
-                "due_date": str(row["due_date"]),
-                "notes": str(row.get("notes", "")),
-                "created_at": datetime.now().isoformat(),
-                "status": "pending",
-            }
-            
-        analysis = await analyze_student_with_gemini(student_dict)
-        student_dict.update(analysis)
-        # Gemini returns "message", model expects "message_text"
-        if "message" in student_dict and not student_dict.get("message_text"):
-            student_dict["message_text"] = student_dict.pop("message")
-            
-            doc_ref = self.collection.document()
-            student_dict["id"] = doc_ref.id
-            doc_ref.set(student_dict)
-            created.append(StudentResponse(**student_dict))
+        failed = []
+        
+        async def process_row(idx, row):
+            try:
+                student_dict = {
+                    "center_id": center_id,
+                    "name": str(row["name"]),
+                    "phone": str(row["phone"]),
+                    "parent_name": str(row["parent_name"]),
+                    "course": str(row["course"]),
+                    "monthly_fee": float(row["monthly_fee"]),
+                    "due_amount": float(row["due_amount"]),
+                    "due_date": str(row["due_date"]),
+                    "notes": str(row.get("notes", "")),
+                    "created_at": datetime.now().isoformat(),
+                    "status": "pending",
+                }
+                
+                analysis = await analyze_student_with_gemini(student_dict)
+                student_dict.update(analysis)
+                if "message" in student_dict and not student_dict.get("message_text"):
+                        student_dict["message_text"] = student_dict.pop("message")
+                
+                doc_ref = self.collection.document()
+                student_dict["id"] = doc_ref.id
+                doc_ref.set(student_dict)
+                return StudentResponse(**student_dict)
+            except Exception as e:
+                failed.append({"row": idx + 1, "name": str(row.get("name", "unknown")), "error": str(e)})
+                return None
+        
+        # Process all rows concurrently (much faster)
+        results = await asyncio.gather(*[process_row(i, row) for i, row in df.iterrows()])
+        created = [r for r in results if r is not None]
+        
+        if failed:
+            print(f"[BulkUpload] {len(failed)} rows failed: {failed}")
         
         return CSVUploadResponse(success=True, count=len(created), students=created)
+       
     
     def list_by_center(
         self,

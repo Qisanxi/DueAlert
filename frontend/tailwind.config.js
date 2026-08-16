@@ -25,8 +25,8 @@ export default {
           500: '#f59e0b',
           600: '#d97706',
         }
-      }
-
+      },
+      boxShadowColor: ({ theme }) => theme('colors'),
     },
   },
   plugins: [],

@@ -28,13 +28,13 @@ def _extract_json(text: str) -> dict:
         text = text[:-3]
     text = text.strip()
     
-    # Try direct parse first
+    # Try direct parse
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
     
-    # Try to find JSON object with regex
+    # Find JSON object with regex
     match = re.search(r'\{[\s\S]*?\}', text)
     if match:
         try:
@@ -42,12 +42,26 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
     
-    # Try fixing common Gemini errors: trailing commas, unclosed strings
+    # Fix trailing commas
     try:
-        # Remove trailing commas before } or ]
         fixed = re.sub(r',\s*([}\]])', r'\1', text)
         return json.loads(fixed)
     except json.JSONDecodeError:
+        pass
+    
+    # Nuclear option: extract key-value pairs manually
+    try:
+        risk_match = re.search(r'"risk_score"\s*:\s*(\d+)', text)
+        date_match = re.search(r'"predicted_payment_date"\s*:\s*"([^"]+)"', text)
+        msg_match = re.search(r'"message"\s*:\s*"([^"]+)"', text)
+        
+        if risk_match and msg_match:
+            return {
+                "risk_score": int(risk_match.group(1)),
+                "predicted_payment_date": date_match.group(1) if date_match else "",
+                "message": msg_match.group(1)
+            }
+    except:
         pass
     
     raise ValueError("Could not extract valid JSON from Gemini response")

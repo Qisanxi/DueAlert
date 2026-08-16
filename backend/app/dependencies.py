@@ -11,6 +11,8 @@ async def get_current_user(authorization: str = Header(None)) -> str:
     token = authorization[7:]
     try:
         decoded = auth.verify_id_token(token, clock_skew_seconds=60)
+        if not decoded.get("email_verified"):
+            raise HTTPException(status_code=403, detail="Email not verified. Please check your inbox and click the verification link.")
         return decoded["uid"]
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid authentication token: {str(e)}")
