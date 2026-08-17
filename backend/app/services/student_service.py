@@ -5,7 +5,7 @@ from firebase_admin import firestore
 import pandas as pd
 from fastapi import UploadFile
 from app.database import get_db
-from app.models import StudentCreate, StudentResponse, StudentUpdate, CSVUploadResponse
+from app.models import StudentResponse, StudentUpdate, CSVUploadResponse
 from app.services.gemini_service import analyze_student_with_gemini
 
 
@@ -14,9 +14,9 @@ class StudentService:
         self.db = get_db()
         self.collection = self.db.collection("students")
     
-    async def create(self, data: StudentCreate) -> StudentResponse:
+    async def create(self, data: dict) -> StudentResponse:
         """Create a single student with Gemini analysis."""
-        student_dict = data.model_dump()
+        student_dict = data.copy()
         student_dict["created_at"] = datetime.now().isoformat()
         student_dict["status"] = "pending"
         student_dict["message_text"] = ""

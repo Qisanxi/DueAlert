@@ -7,11 +7,21 @@ router = APIRouter(prefix="/api/students", tags=["Students"])
 
 
 @router.post("", response_model=dict)
-async def create_student(student: StudentCreate, center_id: str = Depends(get_current_center)):
+async def create_student(
+    student: StudentCreate,
+    center_id: str = Depends(get_current_center)
+):
     svc = get_student_service()
-    student.center_id = center_id
-    created = await svc.create(student)
-    return {"success": True, "student": created}
+
+    student_data = student.model_dump()
+    student_data["center_id"] = center_id
+
+    created = await svc.create(student_data)
+
+    return {
+        "success": True,
+        "student": created
+    }
 
 
 @router.post("/bulk-upload", response_model=CSVUploadResponse)
