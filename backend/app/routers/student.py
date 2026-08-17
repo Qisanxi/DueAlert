@@ -67,3 +67,31 @@ def update_status(student_id: str, status: str, center_id: str = Depends(get_cur
         raise HTTPException(status_code=400, detail=str(e))
     
     return {"success": True, "student_id": student_id, "status": status}
+
+@router.delete("/{student_id}", response_model=dict)
+def delete_student(
+    student_id: str,
+    center_id: str = Depends(get_current_center)
+):
+    svc = get_student_service()
+
+    student = svc.get(student_id)
+
+    if not student or student.center_id != center_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    deleted = svc.delete(student_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    return {
+        "success": True,
+        "student_id": student_id
+    }

@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { MessageCircle, Phone, CheckCircle, Clock, ExternalLink } from 'lucide-react'
+import { MessageCircle, Phone, CheckCircle, Clock, ExternalLink, Trash2 } from 'lucide-react'
 import RiskBadge from './RiskBadge'
 import StatusTracker from './StatusTracker'
 import MessagePreview from './MessagePreview'
-import { useSendMessages, useUpdateStatus } from '../hooks/useStudents'
+import { useSendMessages, useUpdateStatus, useDeleteStudent } from '../hooks/useStudents'
+import { api } from '../lib/api'
 
 export default function StudentTable({ students }) {
   const [selected, setSelected] = useState(new Set())
   const [previewStudent, setPreviewStudent] = useState(null)
   const sendMessages = useSendMessages()
   const updateStatus = useUpdateStatus()
+  const deleteStudent = useDeleteStudent()
 
   const toggleSelect = (id) => {
     const next = new Set(selected)
@@ -23,6 +25,20 @@ export default function StudentTable({ students }) {
       setSelected(new Set())
     } else {
       setSelected(new Set(students.map(s => s.id)))
+    }
+  }
+
+  const handleDelete = async (studentId) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this student? This action cannot be undone.'
+    )
+
+    if (!confirmed) return
+
+    try {
+      await deleteStudent.mutateAsync(studentId)
+    } catch (err) {
+      alert(err.message)
     }
   }
 
@@ -50,13 +66,23 @@ export default function StudentTable({ students }) {
   }
 
   const handleSingleSend = async (studentId) => {
-    await sendMessages.mutateAsync([studentId])
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/messages/whatsapp-link/${studentId}`, {
-      headers: { Authorization: `Bearer ${await window.__authToken || ''}` }
-    })
-    const data = await res.json()
-    if (data.success) {
-      window.open(data.wa_link, '_blank')
+    try {
+      // First generate/send the reminder through the backend
+      await sendMessages.mutateAsync([studentId])
+
+      // Get the WhatsApp deep link
+      const data = await api.getWhatsAppLink(studentId)
+
+      if (!data.success || !data.wa_link) {
+        throw new Error('Unable to generate WhatsApp link')
+      }
+
+      // Important for mobile browsers
+      window.location.href = data.wa_link
+
+    } catch (err) {
+      console.error('WhatsApp error:', err)
+      alert(err.message || 'Failed to open WhatsApp')
     }
   }
 
@@ -86,7 +112,7 @@ export default function StudentTable({ students }) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[900px]">
             <thead>
               <tr className="border-b border-slate-200">
                 <th className="text-left py-3 px-2">
@@ -162,6 +188,14 @@ export default function StudentTable({ students }) {
                           <CheckCircle className="w-4 h-4" />
                         </button>
                       )}
+                      <button
+                        onClick={() => handleDelete(student.id)}
+                        disabled={deleteStudent.isPending}
+                        className="p-2 bg-danger-50 hover:bg-danger-100 text-danger-600 rounded-lg transition-colors"
+                        title="Delete Student"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
 
                       <button
                         onClick={() => handleSingleSend(student.id)}

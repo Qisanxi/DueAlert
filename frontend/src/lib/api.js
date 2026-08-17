@@ -41,6 +41,11 @@ export const api = {
 
   createStudent: (data) => fetchApi('/api/students', { method: 'POST', body: JSON.stringify(data) }),
 
+  deleteStudent: (studentId) =>
+  fetchApi(`/api/students/${studentId}`, {
+    method: 'DELETE'
+  }),
+
   uploadCSV: async (file) => {
     const formData = new FormData()
     formData.append('file', file)

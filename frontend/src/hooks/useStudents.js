@@ -41,6 +41,32 @@ export function useSendMessages() {
   })
 }
 
+export function useDeleteStudent() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: (studentId) => api.deleteStudent(studentId),
+
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['students'] })
+      qc.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useCreateStudent() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data) => api.createStudent(data),
+
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['students'] })
+      qc.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
 export function useUpdateStatus() {
   const qc = useQueryClient()
   return useMutation({

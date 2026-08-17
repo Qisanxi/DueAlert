@@ -135,6 +135,15 @@ class StudentService:
         update_data["updated_at"] = datetime.now().isoformat()
         doc_ref.update(update_data)
         return True
+
+    def delete(self, student_id: str) -> bool:
+        doc_ref = self.collection.document(student_id)
+
+        if not doc_ref.get().exists:
+            return False
+
+        doc_ref.delete()
+        return True
     
     def update_status(self, student_id: str, status: str) -> bool:
         valid = {"pending", "message_sent", "replied", "paid"}

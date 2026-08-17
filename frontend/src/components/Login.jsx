@@ -11,10 +11,12 @@ const loginSchema = z.object({
 })
 
 export default function Login() {
-  const { signup, login } = useAuth()
+  const { signup, login, resetPassword, } = useAuth()
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(loginSchema)
@@ -23,7 +25,7 @@ export default function Login() {
   const onSubmit = async (data) => {
     setError('')
     setSuccess('')
-    
+
     try {
       if (isRegister) {
         await signup(data.email, data.password)
@@ -38,12 +40,33 @@ export default function Login() {
       else setError(msg)
     }
   }
+  const handleForgotPassword = async () => {
+    setError('')
+    setSuccess('')
+
+    if (!resetEmail) {
+      setError('Please enter your email address.')
+      return
+    }
+
+    try {
+      await resetPassword(resetEmail)
+      setSuccess('Password reset email sent. Please check your inbox.')
+      setShowForgotPassword(false)
+    } catch (err) {
+      const msg = err.message
+        .replace('Firebase: ', '')
+        .replace('Error ', '')
+
+      setError(msg)
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 relative overflow-hidden">
       <div className="absolute top-20 left-20 w-72 h-72 bg-primary-500/20 rounded-full blur-[100px]" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px]" />
-      
+
       <div className="relative z-10 w-full max-w-md px-6">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-8">
           <div className="text-center mb-8">
@@ -75,32 +98,48 @@ export default function Login() {
               <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-                <input 
-                  {...register('email')} 
-                  type="email" 
+                <input
+                  {...register('email')}
+                  type="email"
                   className="input pl-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:bg-slate-800"
-                  placeholder="owner@institution.com" 
+                  placeholder="owner@institution.com"
                 />
               </div>
               {errors.email && <p className="text-xs text-danger-400 mt-1.5">{errors.email.message}</p>}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400" />
-                <input 
-                  {...register('password')} 
-                  type="password" 
+                <input
+                  {...register('password')}
+                  type="password"
                   className="input pl-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:bg-slate-800"
-                  placeholder="••••••••" 
+                  placeholder="••••••••"
                 />
               </div>
               {errors.password && <p className="text-xs text-danger-400 mt-1.5">{errors.password.message}</p>}
             </div>
+            {!isRegister && (
+              <div className="text-right mt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(true)
+                    setResetEmail('')
+                    setError('')
+                    setSuccess('')
+                  }}
+                  className="text-sm text-primary-400 hover:text-primary-300"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isSubmitting}
               className="btn-primary w-full flex items-center justify-center gap-2"
             >
@@ -116,7 +155,7 @@ export default function Login() {
           </form>
 
           <div className="mt-6 text-center">
-            <button 
+            <button
               onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }}
               className="text-sm text-slate-400 hover:text-white transition-colors"
             >
@@ -126,6 +165,45 @@ export default function Login() {
           </div>
         </div>
       </div>
+      {showForgotPassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-slate-900">
+              Reset Password
+            </h2>
+
+            <p className="text-sm text-slate-500 mt-2 mb-5">
+              Enter your email and we'll send you a password reset link.
+            </p>
+
+            <input
+              type="email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              placeholder="owner@institution.com"
+              className="input w-full"
+            />
+
+            <div className="flex gap-3 mt-5">
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(false)}
+                className="btn-secondary flex-1"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="btn-primary flex-1"
+              >
+                Send Reset Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
