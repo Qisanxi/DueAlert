@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { LogOut, LayoutDashboard, Users, Upload, Building2, Bell, Menu, X } from 'lucide-react'
+import { LogOut, LayoutDashboard, Users, Upload, Building2, Menu, X } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { api } from './lib/api'
 import Dashboard from './components/Dashboard'
@@ -99,9 +99,10 @@ function App() {
           </div>
 
           <nav className="space-y-1">
-            <NavButton active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'), setMobileMenuOpen(false) }} icon={LayoutDashboard} label="Dashboard" />
-            <NavButton active={activeTab === 'students'} onClick={() => { setActiveTab('students'), setMobileMenuOpen(false) }} icon={Users} label="All Students" />
-            <NavButton active={activeTab === 'upload'} onClick={() => { setActiveTab('upload'), setMobileMenuOpen(false) }} icon={Upload} label="Bulk Upload" />
+            {/* Fix 3: comma → semicolon in all onClick handlers */}
+            <NavButton active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false) }} icon={LayoutDashboard} label="Dashboard" />
+            <NavButton active={activeTab === 'students'} onClick={() => { setActiveTab('students'); setMobileMenuOpen(false) }} icon={Users} label="All Students" />
+            <NavButton active={activeTab === 'upload'} onClick={() => { setActiveTab('upload'); setMobileMenuOpen(false) }} icon={Upload} label="Bulk Upload" />
           </nav>
         </div>
 
@@ -139,36 +140,21 @@ function App() {
           </div>
           <div className="w-9" />
         </div>
+
         <div className="max-w-7xl mx-auto">
+          {/* Fix 2: Dashboard tab now actually renders */}
           {activeTab === 'dashboard' && (
-            <>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Dashboard</h2>
-                  <p className="text-sm text-slate-500 mt-1">Overview of your fee collection</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
-                  <Bell className="w-4 h-4" />
-                  <span>{students.length} students tracked</span>
-                </div>
-              </div>
-              <Dashboard />
-            </>
+            <Dashboard students={students} />
           )}
 
+          {/* Fix 1: duplicate students block removed — only one remains */}
           {activeTab === 'students' && (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    Students
-                  </h2>
-
-                  <p className="text-sm text-slate-500 mt-1">
-                    Manage and track all student fees
-                  </p>
+                  <h2 className="text-2xl font-bold text-slate-900">Students</h2>
+                  <p className="text-sm text-slate-500 mt-1">Manage and track all student fees</p>
                 </div>
-
                 <button
                   onClick={() => setShowAddStudent(true)}
                   className="btn-primary"
@@ -176,6 +162,7 @@ function App() {
                   + Add Student
                 </button>
               </div>
+              <StudentTable students={students} />
             </>
           )}
 
@@ -190,6 +177,7 @@ function App() {
           )}
         </div>
       </main>
+
       {showAddStudent && (
         <AddStudentModal
           onClose={() => setShowAddStudent(false)}

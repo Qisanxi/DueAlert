@@ -23,7 +23,20 @@ async function fetchApi(endpoint, options = {}) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.detail || `HTTP ${res.status}`)
+
+    let message = `HTTP ${res.status}`
+
+    if (typeof err.detail === 'string') {
+      message = err.detail
+    } else if (Array.isArray(err.detail)) {
+      message = err.detail
+        .map(item => item.msg || JSON.stringify(item))
+        .join(', ')
+    } else if (err.detail) {
+      message = JSON.stringify(err.detail)
+    }
+
+    throw new Error(message)
   }
 
   return res.json()
@@ -42,9 +55,9 @@ export const api = {
   createStudent: (data) => fetchApi('/api/students', { method: 'POST', body: JSON.stringify(data) }),
 
   deleteStudent: (studentId) =>
-  fetchApi(`/api/students/${studentId}`, {
-    method: 'DELETE'
-  }),
+    fetchApi(`/api/students/${studentId}`, {
+      method: 'DELETE'
+    }),
 
   uploadCSV: async (file) => {
     const formData = new FormData()
