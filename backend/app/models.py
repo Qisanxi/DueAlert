@@ -37,7 +37,14 @@ class StudentBase(BaseModel):
 
 
 class StudentCreate(StudentBase):
-    pass
+    name: str = Field(..., min_length=1, max_length=200)
+    phone: str = Field(..., min_length=10, max_length=20)
+    parent_name: str = Field(..., min_length=1, max_length=200)
+    course: str = Field(..., min_length=1, max_length=200)
+    monthly_fee: float = Field(..., ge=0)
+    due_amount: float = Field(..., ge=0)
+    due_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    notes: Optional[str] = Field(default="")
 
 
 class StudentUpdate(BaseModel):
