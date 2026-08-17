@@ -4,9 +4,24 @@ const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000').repla
 
 async function getAuthHeader() {
   const user = auth.currentUser
-  if (!user) return {}
-  const token = await user.getIdToken(true)
-  return { Authorization: `Bearer ${token}` }
+
+  console.log('🔐 API AUTH CHECK:', {
+    userExists: !!user,
+    uid: user?.uid,
+    email: user?.email,
+  })
+
+  if (!user) {
+    throw new Error('User is not authenticated')
+  }
+
+  const token = await user.getIdToken()
+
+  console.log('🔐 TOKEN GENERATED:', !!token)
+
+  return {
+    Authorization: `Bearer ${token}`,
+  }
 }
 
 async function fetchApi(endpoint, options = {}) {

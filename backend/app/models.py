@@ -36,7 +36,7 @@ class StudentBase(BaseModel):
     notes: Optional[str] = Field(default="")
 
 
-class StudentCreate(StudentBase):
+class StudentCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     phone: str = Field(..., min_length=10, max_length=20)
     parent_name: str = Field(..., min_length=1, max_length=200)
@@ -70,7 +70,6 @@ class StudentResponse(StudentBase):
 
 # ─── Message Models ────────────────────────────────────────
 class BulkMessageRequest(BaseModel):
-    center_id: str
     student_ids: List[str] = Field(..., min_length=1)
 
 
