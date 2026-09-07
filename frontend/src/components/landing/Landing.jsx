@@ -27,14 +27,14 @@ import { useMouseParallax } from '../../hooks/useMouseParallax'
 const PAINS = [
   { icon: Clock, title: 'Endless follow-ups', desc: 'Hours spent messaging parents one by one, asking the same thing.' },
   { icon: TrendingDown, title: 'Money stuck', desc: 'Lakhs of rupees in outstanding fees sitting in spreadsheets.' },
-  { icon: BellOff, title: 'No system', desc: 'No idea who\u2019s likely to pay on time and who needs a nudge.' },
+  { icon: BellOff, title: 'No system', desc: "No idea who's likely to pay on time and who needs a nudge." },
 ]
 
 const FEATURES = [
   {
     icon: BrainCircuit,
-    title: 'AI spots who\u2019ll delay',
-    desc: 'DueAlert studies each student\u2019s payment history and flags the ones likely to pay late — with a 0–100 risk score and a predicted payment date.',
+    title: "AI spots who'll delay",
+    desc: "DueAlert studies each student's payment history and flags the ones likely to pay late — with a 0–100 risk score and a predicted payment date.",
     color: 'brand',
   },
   {
@@ -66,7 +66,7 @@ const INDIA_POINTS = [
 
 const STATS = [
   { value: '50+', label: 'Coaching centers' },
-  { value: '\u20B92.5Cr+', label: 'Fees tracked' },
+  { value: 'Rs. 2.5Cr+', label: 'Fees tracked' },
   { value: '12,000+', label: 'Reminders sent' },
   { value: '82%', label: 'Avg collection rate' },
 ]
@@ -108,7 +108,7 @@ export default function Landing() {
               </h1>
 
               <p className="text-lg text-ink2-700 leading-relaxed mb-8 max-w-xl">
-                DueAlert tracks who owes you, predicts who\u2019ll delay, and writes parent-friendly
+                DueAlert tracks who owes you, predicts who'll delay, and writes parent-friendly
                 reminders in Hinglish — ready to send on WhatsApp. You save hours every month.
                 Your fees come in faster.
               </p>
@@ -176,7 +176,7 @@ export default function Landing() {
               <span className="text-ink2-500">We get it.</span>
             </h2>
             <p className="mt-4 text-ink2-700 text-base md:text-lg">
-              You started a coaching center to teach — not to chase fees. But every month it\u2019s
+              You started a coaching center to teach — not to chase fees. But every month it's
               the same grind.
             </p>
           </Reveal>
@@ -240,7 +240,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-5xl font-extrabold text-ink2-900 mt-3 leading-tight">
               Everything you need to collect fees.
               <br />
-              <span className="text-ink2-500">Nothing you don\u2019t.</span>
+              <span className="text-ink2-500">Nothing you don't.</span>
             </h2>
           </Reveal>
 

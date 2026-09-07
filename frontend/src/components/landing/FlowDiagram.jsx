@@ -17,14 +17,14 @@ const STEPS = [
   {
     n: 2,
     icon: BrainCircuit,
-    title: 'AI Spots Who\u2019ll Delay',
-    desc: 'DueAlert studies each student\u2019s pattern and flags the ones likely to pay late.',
+    title: "AI Spots Who'll Delay",
+    desc: "DueAlert studies each student's pattern and flags the ones likely to pay late.",
   },
   {
     n: 3,
     icon: MessageSquareHeart,
     title: 'Review Reminders',
-    desc: 'Personalized Hinglish messages — one per student. Tweak if you want, send as-is if you don\u2019t.',
+    desc: "Personalized Hinglish messages — one per student. Tweak if you want, send as-is if you don't.",
   },
   {
     n: 4,

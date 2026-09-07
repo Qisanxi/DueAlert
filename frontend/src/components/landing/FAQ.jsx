@@ -8,14 +8,14 @@ const FAQS = [
   },
   {
     q: 'Is my student data safe?',
-    a: 'Yes. Your data lives on Google Cloud (Firebase + Firestore) with the same encryption standard used by banks. Each institution\u2019s data is isolated — no other center can see your students.',
+    a: "Yes. Your data lives on Google Cloud (Firebase + Firestore) with the same encryption standard used by banks. Each institution's data is isolated — no other center can see your students.",
   },
   {
     q: 'Does DueAlert automatically send messages to parents?',
-    a: 'No — you stay in control. DueAlert\u2019s AI drafts the perfect message for each student, but you review and hit send yourself. We never message parents without your approval.',
+    a: "No — you stay in control. DueAlert's AI drafts the perfect message for each student, but you review and hit send yourself. We never message parents without your approval.",
   },
   {
-    q: 'What if a parent doesn\u2019t use WhatsApp?',
+    q: "What if a parent doesn't use WhatsApp?",
     a: 'The generated reminder can be copied as plain text and sent via SMS, email, or printed for a phone call. WhatsApp is the default because most Indian parents use it daily.',
   },
   {
@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: 'How accurate is the AI risk prediction?',
-    a: 'The AI looks at payment history patterns, due date proximity, outstanding amount, and past delays to score each student 0–100. It\u2019s a smart prioritization tool — not a crystal ball — but it helps you focus your follow-up time where it matters most.',
+    a: "The AI looks at payment history patterns, due date proximity, outstanding amount, and past delays to score each student 0–100. It's a smart prioritization tool — not a crystal ball — but it helps you focus your follow-up time where it matters most.",
   },
   {
     q: 'What does it cost?',
