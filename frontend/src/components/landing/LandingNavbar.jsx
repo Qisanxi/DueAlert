@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, ShieldCheck } from 'lucide-react'
+import { Menu, X, ShieldCheck, ArrowRight } from 'lucide-react'
 
 // lucide-react v1 dropped brand icons (including Github).
 // Inline the GitHub mark so we don't depend on an external icon pack.
@@ -11,14 +11,6 @@ function GithubIcon({ className = 'h-4 w-4' }) {
     </svg>
   )
 }
-
-const LINKS = [
-  { href: '#features', label: 'Features' },
-  { href: '#how', label: 'How It Works' },
-  { href: '#usecases', label: 'Use Cases' },
-  { href: '#tech', label: 'Tech Stack' },
-  { href: '#architecture', label: 'Architecture' },
-]
 
 export default function LandingNavbar() {
   const [open, setOpen] = useState(false)
@@ -32,33 +24,10 @@ export default function LandingNavbar() {
             <ShieldCheck className="h-5 w-5 text-white" />
           </span>
           <span className="font-display text-xl font-bold tracking-tight text-white">DueAlert</span>
-          <span className="hidden sm:inline-block text-[10px] uppercase tracking-widest text-gem-400/80 border border-gem-400/30 rounded-full px-2 py-0.5 ml-1">
-            Gemini AI
-          </span>
         </Link>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-8 text-sm text-slate-300">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="nav-link hover:text-white">
-              {l.label}
-            </a>
-          ))}
-        </div>
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="https://duealert.onrender.com/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-landing-ghost !px-4 !py-2 text-sm"
-          >
-            API Docs
-          </a>
-          <Link to="/login" className="btn-landing-primary !px-4 !py-2 text-sm">
-            Sign In
-          </Link>
           <a
             href="https://github.com/Qisanxi/DueAlert"
             target="_blank"
@@ -68,6 +37,10 @@ export default function LandingNavbar() {
           >
             <GithubIcon className="h-4 w-4" />
           </a>
+          <Link to="/login" className="btn-landing-primary !px-5 !py-2 text-sm inline-flex items-center gap-2">
+            Launch App
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
         {/* Mobile menu button */}
@@ -83,37 +56,26 @@ export default function LandingNavbar() {
       {/* Mobile menu */}
       <div
         className={`md:hidden px-6 bg-ink-800/95 border-b border-white/5 overflow-hidden transition-[max-height] duration-400 ${
-          open ? 'max-h-96' : 'max-h-0'
+          open ? 'max-h-72' : 'max-h-0'
         }`}
       >
         <div className="py-4 flex flex-col gap-3 text-slate-300 text-sm">
-          {LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="py-1"
-            >
-              {l.label}
-            </a>
-          ))}
-          <div className="flex gap-3 pt-2">
-            <Link
-              to="/login"
-              onClick={() => setOpen(false)}
-              className="btn-landing-primary !px-4 !py-2 text-sm flex-1 text-center"
-            >
-              Sign In
-            </Link>
-            <a
-              href="https://github.com/Qisanxi/DueAlert"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-landing-ghost !px-4 !py-2 text-sm flex-1 text-center inline-flex items-center justify-center gap-2"
-            >
-              <GithubIcon className="h-4 w-4" /> GitHub
-            </a>
-          </div>
+          <a
+            href="https://github.com/Qisanxi/DueAlert"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="btn-landing-ghost !px-4 !py-2.5 text-sm inline-flex items-center justify-center gap-2"
+          >
+            <GithubIcon className="h-4 w-4" /> View Source
+          </a>
+          <Link
+            to="/login"
+            onClick={() => setOpen(false)}
+            className="btn-landing-primary !px-4 !py-2.5 text-sm inline-flex items-center justify-center gap-2"
+          >
+            Launch App <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </header>
