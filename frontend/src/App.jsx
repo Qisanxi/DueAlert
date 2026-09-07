@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { LogOut, LayoutDashboard, Users, Upload, Building2, Menu, X } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
@@ -6,12 +6,23 @@ import { api } from './lib/api'
 import Dashboard from './components/Dashboard'
 import StudentTable from './components/StudentTable'
 import CSVUpload from './components/CSVUpload'
-import Login from './components/Login'
 import InstitutionSetup from './components/InstitutionSetup'
 import VerifyEmailScreen from './components/VerifyEmailScreen'
 import { useStudents } from './hooks/useStudents'
 import AddStudentModal from './components/AddStudentModal'
-import Landing from './components/landing/Landing'
+
+// Code-split the public landing + login pages so visitors don't download
+// the full authenticated app (Firebase + Recharts + dashboard) on first paint.
+const Landing = lazy(() => import('./components/landing/Landing'))
+const Login = lazy(() => import('./components/Login'))
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-ink-900">
+      <div className="w-8 h-8 border-2 border-gem-400/30 border-t-cyan-400 rounded-full animate-spin" />
+    </div>
+  )
+}
 
 function App() {
   const { user, logout, emailVerified } = useAuth()
@@ -48,20 +59,24 @@ function App() {
   // Public routes — accessible without auth
   if (location.pathname === '/' || location.pathname === '/landing') {
     return (
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/landing" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     )
   }
 
   // Auth gate — if not logged in, only the /login route is reachable
   if (!user) {
     return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     )
   }
 
