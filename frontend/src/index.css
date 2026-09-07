@@ -329,7 +329,9 @@
     .wordmark-glow,
     .text-gradient,
     .aurora-bg::before,
-    .aurora-bg::after {
+    .aurora-bg::after,
+    .animate-flow-dot,
+    .animate-pulse-soft {
       animation: none !important;
     }
     .reveal {
@@ -338,4 +340,58 @@
       transition: none !important;
     }
   }
+
+  /* ===== Consumer landing (light theme) ===== */
+  .btn-brand {
+    @apply bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl px-6 py-3.5 inline-flex items-center gap-2 transition-all duration-200 shadow-lg shadow-brand-600/20 hover:shadow-xl hover:shadow-brand-600/30 active:scale-95;
+  }
+  .btn-brand-outline {
+    @apply bg-white hover:bg-warm-50 text-ink2-900 font-semibold rounded-xl px-6 py-3.5 inline-flex items-center gap-2 transition-all duration-200 border border-warm-200 hover:border-brand-400 active:scale-95;
+  }
+
+  .card-soft {
+    @apply bg-white rounded-2xl border border-warm-200 p-6 transition-all duration-300;
+  }
+  .card-soft:hover {
+    @apply border-brand-400 shadow-xl shadow-brand-600/5 -translate-y-1;
+  }
+
+  /* Soft pulsing glow for the hero CTA / key elements */
+  .animate-pulse-soft {
+    animation: pulseSoft 3s ease-in-out infinite;
+  }
+  @keyframes pulseSoft {
+    0%, 100% { box-shadow: 0 10px 30px -10px rgba(15, 118, 110, 0.4); }
+    50% { box-shadow: 0 16px 40px -10px rgba(15, 118, 110, 0.55); }
+  }
+
+  /* Animated traveling dots for the simple 4-step flow */
+  .animate-flow-dot {
+    animation: flowDotMove 4s linear infinite;
+  }
+  @keyframes flowDotMove {
+    0% { offset-distance: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  /* Subtle warm gradient blob for the light hero */
+  .warm-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .warm-blob-teal {
+    background: radial-gradient(circle at center, #14B8A6, transparent 70%);
+  }
+  .warm-blob-amber {
+    background: radial-gradient(circle at center, #F59E0B, transparent 70%);
+  }
+
+  /* Hide scrollbar for FAQ smoothness */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
