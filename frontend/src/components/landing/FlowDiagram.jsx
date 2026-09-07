@@ -174,11 +174,24 @@ function Node({ node, delay }) {
   const strokeColor = node.accent === 'cyan' ? '#22d3ee' : '#7c3aed'
   const textColor = node.accent === 'cyan' ? '#22d3ee' : '#e6e9f2'
   const iconColor = node.accent === 'cyan' ? '#22d3ee' : '#a78bfa'
+  const pulseClass = node.accent === 'cyan' ? 'animate-node-pulse-cyan' : 'animate-node-pulse'
   return (
     <g
-      className="flow-node animate-node-pulse"
+      className={`flow-node ${pulseClass}`}
       style={{ animationDelay: `${delay}s` }}
     >
+      {/* Pre-rendered glow ring (static, cheap) — replaced expensive drop-shadow filter */}
+      {node.highlight && (
+        <circle
+          cx={node.x}
+          cy={node.y}
+          r={node.highlight ? 52 : 48}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth="1"
+          opacity="0.25"
+        />
+      )}
       <circle
         cx={node.x}
         cy={node.y}
@@ -205,7 +218,7 @@ function Node({ node, delay }) {
         x={node.x}
         y={node.y + 88}
         textAnchor="middle"
-        fill="#64748b"
+        fill="#94a3b8"
         fontFamily="Inter, sans-serif"
         fontSize="11"
       >
@@ -226,99 +239,117 @@ export default function FlowDiagram() {
   ]
 
   return (
-    <div className="glow-card p-6 md:p-10 overflow-x-auto">
-      <div className="min-w-[920px]">
-        <svg viewBox="0 0 1180 460" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#7c3aed" />
-              <stop offset="50%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#7c3aed" />
-            </linearGradient>
-            <radialGradient id="dotGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="40%" stopColor="#22d3ee" />
-              <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
-            </radialGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
+    <div className="glow-card p-4 sm:p-6 md:p-10">
+      {/* Horizontal-scroll container with fade edges + styled scrollbar on mobile */}
+      <div className="diagram-scroll diagram-scroll-fade overflow-x-auto pb-2">
+        <div className="min-w-[920px]">
+          <svg
+            viewBox="0 0 1180 460"
+            className="w-full h-auto"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="flowTitle flowDesc"
+          >
+            <title id="flowTitle">DueAlert 9-step user flow</title>
+            <desc id="flowDesc">{`Animated diagram: sign up, verify email, institution setup, add students/CSV, Gemini AI analysis, Hinglish reminder, WhatsApp send, track status, dashboard updates.`}</desc>
+            <defs>
+              <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#7c3aed" />
+                <stop offset="50%" stopColor="#06b6d4" />
+                <stop offset="100%" stopColor="#7c3aed" />
+              </linearGradient>
+              <radialGradient id="dotGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="40%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+              </radialGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
 
-          {/* Visible dashed flow path */}
-          <path
-            d={PATH_D}
-            fill="none"
-            stroke="url(#pathGrad)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            className="flow-path"
-            opacity="0.55"
-          />
-
-          {/* Invisible path for dot motion */}
-          <path id="flowPathDots" d={PATH_D} fill="none" stroke="none" />
-
-          {/* Nodes */}
-          {NODES.map((node, i) => (
-            <Node key={node.id} node={node} delay={i * 0.4} />
-          ))}
-
-          {/* Final completion check node */}
-          <g className="flow-node">
-            <circle cx="90" cy="380" r="14" fill="#22d3ee" opacity="0.9" filter="url(#glow)" />
+            {/* Visible dashed flow path */}
             <path
-              d="M 84 380 l4 4 l8 -8"
+              d={PATH_D}
               fill="none"
-              stroke="#0c1120"
-              strokeWidth="2.4"
+              stroke="url(#pathGrad)"
+              strokeWidth="3"
               strokeLinecap="round"
-              strokeLinejoin="round"
+              className="flow-path"
+              opacity="0.55"
             />
-            <text
-              x="90"
-              y="448"
-              textAnchor="middle"
-              fill="#64748b"
-              fontFamily="Inter, sans-serif"
-              fontSize="11"
-            >
-              Collection complete
-            </text>
-          </g>
 
-          {/* Traveling dots */}
-          {dots.map((d, i) => (
-            <circle
-              key={i}
-              r={d.r}
-              fill={d.fill}
-              opacity={d.opacity ?? 1}
-              filter={i === 0 ? 'url(#glow)' : undefined}
-            >
-              <animateMotion dur={d.dur} begin={d.begin} repeatCount="indefinite">
-                <mpath href="#flowPathDots" />
-              </animateMotion>
-            </circle>
-          ))}
-        </svg>
+            {/* Invisible path for dot motion */}
+            <path id="flowPathDots" d={PATH_D} fill="none" stroke="none" />
+
+            {/* Nodes */}
+            {NODES.map((node, i) => (
+              <Node key={node.id} node={node} delay={i * 0.4} />
+            ))}
+
+            {/* Final completion check node */}
+            <g className="flow-node">
+              <circle cx="90" cy="380" r="14" fill="#22d3ee" opacity="0.9" filter="url(#glow)" />
+              <path
+                d="M 84 380 l4 4 l8 -8"
+                fill="none"
+                stroke="#0c1120"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <text
+                x="90"
+                y="448"
+                textAnchor="middle"
+                fill="#94a3b8"
+                fontFamily="Inter, sans-serif"
+                fontSize="11"
+              >
+                Collection complete
+              </text>
+            </g>
+
+            {/* Traveling dots */}
+            {dots.map((d, i) => (
+              <circle
+                key={`dot-${i}`}
+                r={d.r}
+                fill={d.fill}
+                opacity={d.opacity ?? 1}
+                filter={i === 0 ? 'url(#glow)' : undefined}
+              >
+                <animateMotion dur={d.dur} begin={d.begin} repeatCount="indefinite">
+                  <mpath href="#flowPathDots" />
+                </animateMotion>
+              </circle>
+            ))}
+          </svg>
+        </div>
       </div>
 
-      {/* Legend */}
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400 justify-center">
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-gem-400" /> Admin workflow steps
+      {/* Mobile scroll hint + legend */}
+      <div className="mt-4 flex flex-col items-center gap-3">
+        <span className="lg:hidden text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+          Scroll to explore
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 5l-7 7 7 7"/></svg>
         </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" /> AI-powered steps (Gemini)
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" /> Live data pulse
-        </span>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400 justify-center">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-gem-400" /> Admin workflow steps
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" /> AI-powered steps (Gemini)
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" /> Live data pulse
+          </span>
+        </div>
       </div>
     </div>
   )

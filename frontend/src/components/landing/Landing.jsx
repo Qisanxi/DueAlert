@@ -5,30 +5,28 @@ import LandingNavbar from './LandingNavbar'
 import FlowDiagram from './FlowDiagram'
 import ArchitectureDiagram from './ArchitectureDiagram'
 import Reveal from './Reveal'
-
-// lucide-react v1 dropped brand icons (including Github).
-// Inline the GitHub mark so we don't depend on an external icon pack.
-function GithubIcon({ className = 'h-4 w-4' }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.94c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.74 1.27 3.4.97.1-.76.4-1.27.74-1.56-2.56-.3-5.26-1.28-5.26-5.7 0-1.26.45-2.3 1.2-3.1-.12-.3-.52-1.48.1-3.08 0 0 .97-.3 3.2 1.18a11.1 11.1 0 0 1 5.82 0c2.23-1.48 3.2-1.18 3.2-1.18.62 1.6.22 2.78.1 3.08.75.8 1.2 1.84 1.2 3.1 0 4.43-2.7 5.4-5.27 5.69.4.35.78 1.05.78 2.12v3.14c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z" />
-    </svg>
-  )
-}
+import GithubIcon from './GithubIcon'
+import { useMouseParallax } from '../../hooks/useMouseParallax'
 
 export default function Landing() {
+  // Mouse-parallax on the hero aurora — subtle, no re-renders, respects reduced-motion
+  const heroRef = useMouseParallax()
+
   return (
     <div className="min-h-screen bg-ink-900 text-slate-200 landing-scrollbar">
       <LandingNavbar />
 
       {/* ============== HERO ============== */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16">
-        <div className="aurora-bg" />
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16"
+      >
+        <div className="aurora-bg aurora-parallax" />
         <div className="absolute inset-0 grid-bg" />
 
         <div className="relative max-w-5xl mx-auto px-6 z-10 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-gem-400/30 bg-gem-500/10 px-4 py-1.5 text-xs font-medium text-gem-400 mb-10 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gem-400/30 bg-gem-500/10 px-4 py-1.5 text-xs font-medium text-gem-300 mb-10 backdrop-blur-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
@@ -37,16 +35,16 @@ export default function Landing() {
             Built with Google Gemini
           </div>
 
-          {/* Logo / Title — big, bold, with gradient on "Alert" */}
-          <h1 className="font-display text-7xl sm:text-8xl lg:text-9xl font-bold tracking-tight text-white mb-8 leading-none">
+          {/* Wordmark — big, bold, with gradient + subtle glow pulse */}
+          <h1 className="wordmark-glow font-display text-7xl sm:text-8xl lg:text-9xl font-bold tracking-tight text-white mb-8 leading-none">
             Due<span className="text-gradient">Alert</span>
           </h1>
 
-          {/* 2-3 line tagline */}
-          <p className="text-xl md:text-2xl text-slate-300 max-w-2xl mx-auto leading-relaxed mb-4">
-            AI-powered fee collection for coaching centers.
+          {/* Punchy 2-line tagline */}
+          <p className="text-xl md:text-2xl text-slate-200 max-w-2xl mx-auto leading-snug mb-3">
+            Stop chasing fees. Let AI collect smarter.
           </p>
-          <p className="text-base md:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed mb-12">
+          <p className="text-base md:text-lg text-slate-400 max-w-xl mx-auto leading-relaxed mb-12">
             Gemini analyzes payment risk, predicts pay dates, and writes personalized Hinglish
             reminders — so you stop chasing fees and start collecting them.
           </p>
@@ -72,14 +70,18 @@ export default function Landing() {
           </div>
 
           {/* Scroll hint */}
-          <div className="mt-20 flex flex-col items-center gap-2 text-slate-600 text-[11px] uppercase tracking-[0.25em]">
+          <a
+            href="#flow"
+            className="mt-20 inline-flex flex-col items-center gap-2 text-slate-500 hover:text-gem-300 transition-colors text-[11px] uppercase tracking-[0.25em] group"
+          >
             <span>See how it works</span>
             <svg
-              className="h-5 w-5 animate-bounce text-gem-400/70"
+              className="h-5 w-5 animate-bounce text-gem-400/70 group-hover:text-cyan-400 transition-colors"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -87,12 +89,12 @@ export default function Landing() {
                 d="M19 14l-7 7m0 0l-7-7m7 7V3"
               />
             </svg>
-          </div>
+          </a>
         </div>
       </section>
 
       {/* ============== USER FLOW DIAGRAM ============== */}
-      <section id="flow" className="py-24 relative">
+      <section id="flow" className="py-24 relative scroll-mt-16">
         <div className="max-w-7xl mx-auto px-6">
           <Reveal className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs font-mono uppercase tracking-widest text-gem-400">
@@ -114,7 +116,7 @@ export default function Landing() {
       </section>
 
       {/* ============== ARCHITECTURE DIAGRAM ============== */}
-      <section id="architecture" className="py-24 relative overflow-hidden">
+      <section id="architecture" className="py-24 relative overflow-hidden scroll-mt-16">
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900 via-ink-800/30 to-ink-900" />
         <div className="relative max-w-7xl mx-auto px-6">
           <Reveal className="text-center max-w-2xl mx-auto mb-14">
