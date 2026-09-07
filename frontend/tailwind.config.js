@@ -30,7 +30,7 @@ export default {
           500: '#f59e0b',
           600: '#d97706',
         },
-        // Landing page (dark Gemini-inspired) palette
+        // Landing page (dark Gemini-inspired) palette — kept for the Login page
         ink: {
           900: '#070a13',
           800: '#0c1120',
@@ -48,6 +48,35 @@ export default {
           300: '#67e8f9',
           400: '#22d3ee',
           500: '#06b6d4',
+        },
+        // New consumer landing palette — warm, trustworthy, India-friendly
+        warm: {
+          50: '#FAFAF9',
+          100: '#F5F5F4',
+          200: '#E7E5E4',
+          300: '#D6D3D1',
+        },
+        ink2: {
+          900: '#1C1917',
+          700: '#44403C',
+          500: '#78716C',
+          400: '#A8A29E',
+        },
+        brand: {
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          400: '#2DD4BF',
+          500: '#14B8A6',
+          600: '#0D9488',
+          700: '#0F766E',
+          800: '#115E59',
+        },
+        accent: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
         },
       },
       boxShadowColor: ({ theme }) => theme('colors'),
