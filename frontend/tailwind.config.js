@@ -5,6 +5,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',
@@ -24,11 +29,29 @@ export default {
         warning: {
           500: '#f59e0b',
           600: '#d97706',
-        }
+        },
+        // Landing page (dark Gemini-inspired) palette
+        ink: {
+          900: '#070a13',
+          800: '#0c1120',
+          700: '#131a2e',
+          600: '#1b2440',
+          500: '#27325a',
+        },
+        gem: {
+          300: '#c4b5fd',
+          400: '#a78bfa',
+          500: '#8b5cf6',
+          600: '#7c3aed',
+        },
+        cyan: {
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4',
+        },
       },
       boxShadowColor: ({ theme }) => theme('colors'),
     },
   },
   plugins: [],
 }
-
