@@ -1,5 +1,9 @@
 # DueAlert
 
+![CI](https://github.com/Qisanxi/DueAlert/actions/workflows/ci.yml/badge.svg)
+![Tests](https://github.com/Qisanxi/DueAlert/actions/workflows/test.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 ### AI-Powered Fee Collection Assistant for Coaching & Educational Centers
 
 DueAlert is an AI-powered fee collection and student payment tracking platform designed for coaching centers and educational institutions.
@@ -323,7 +327,9 @@ DueAlert/
 │
 ├── .github/
 │   └── workflows/
-│       └── ping-render.yml
+│       ├── ci.yml
+│       ├── ping-render.yml
+│       └── test.yml
 │
 ├── backend/
 │   ├── app/
@@ -349,7 +355,8 @@ DueAlert/
 │   │   └── models.py
 │   │
 │   ├── tests/
-│   │   └── test_api.py
+│   │   ├── test_api.py              # Integration tests (live backend + Firebase)
+│   │   └── test_gemini_extract.py  # Unit tests for _extract_json
 │   │
 │   └── requirements.txt
 │
@@ -517,13 +524,41 @@ This allows production credentials to be supplied securely through the hosting e
 
 ## 🧪 Testing
 
-Backend API tests are located in:
+Backend tests live under `backend/tests/`:
 
-```text
-backend/tests/test_api.py
+* `test_api.py` — Integration tests that exercise the live API and Firebase
+  Auth. Requires a running backend and `FIREBASE_API_KEY` set in the
+  environment.
+* `test_gemini_extract.py` — Pure unit tests for
+  `gemini_service._extract_json`. No network, no API keys required (dummy
+  credentials are injected automatically by the CI workflow).
+
+### Run unit tests locally
+
+```bash
+cd backend
+pip install -r requirements.txt
+pip install pytest
+
+# Dummy env vars satisfy app.config.Settings() during import —
+# _extract_json never makes network calls.
+export FIREBASE_PROJECT_ID=dummy
+export GEMINI_API_KEY=dummy
+
+# Skip the integration test file in local/unit runs:
+python -m pytest tests/ -v --ignore=tests/test_api.py
 ```
 
-Run the backend test suite from the `backend` directory with your configured Python testing environment.
+### CI
+
+GitHub Actions runs two workflows on every push and pull request:
+
+| Workflow        | File                          | What it does                                                    |
+| --------------- | ----------------------------- | --------------------------------------------------------------- |
+| **CI**          | `.github/workflows/ci.yml`    | Frontend `npm ci` + `npm run lint` + `npm run build`; backend byte-compile check |
+| **Tests**       | `.github/workflows/test.yml`  | Installs backend deps + pytest, runs unit tests for `_extract_json` |
+
+The status badges at the top of this README reflect the latest run of each workflow.
 
 ---
 
