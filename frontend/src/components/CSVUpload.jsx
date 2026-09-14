@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Sparkles, Brain, MessageSquare, Calendar } from 'lucide-react'
 import { useUploadCSV } from '../hooks/useStudents'
 
-export default function CSVUpload() {
+export default function CSVUpload({ onUploadSuccess }) {
   const [file, setFile] = useState(null)
   const [result, setResult] = useState(null)
   const inputRef = useRef(null)
@@ -22,6 +22,10 @@ export default function CSVUpload() {
     setResult(res)
     setFile(null)
     if (inputRef.current) inputRef.current.value = ''
+    // Notify parent (App.jsx) so it can switch to the dashboard tab.
+    if (res?.success && typeof onUploadSuccess === 'function') {
+      onUploadSuccess(res)
+    }
   }
 
   return (

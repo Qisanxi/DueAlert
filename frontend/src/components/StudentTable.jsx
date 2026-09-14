@@ -46,17 +46,21 @@ export default function StudentTable({ students }) {
     const ids = Array.from(selected)
     await sendMessages.mutateAsync(ids)
 
-    ids.forEach((id, idx) => {
-      setTimeout(async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/messages/whatsapp-link/${id}`, {
-          headers: { Authorization: `Bearer ${await window.__authToken || ''}` }
-        })
-        const data = await res.json()
-        if (data.success) {
+    // Open each WhatsApp link sequentially using the authed api helper.
+    // (window.__authToken was always undefined — api.getWhatsAppLink uses
+    // getAuthHeader() so the Firebase ID token is attached properly.)
+    for (const id of ids) {
+      try {
+        const data = await api.getWhatsAppLink(id)
+        if (data.success && data.wa_link) {
           window.open(data.wa_link, '_blank')
         }
-      }, idx * 800)
-    })
+      } catch (err) {
+        console.error('Bulk send link failed for', id, err)
+      }
+      // small delay so browsers don't block multiple popups
+      await new Promise((r) => setTimeout(r, 800))
+    }
 
     setSelected(new Set())
   }

@@ -100,5 +100,8 @@ export const api = {
     body: JSON.stringify({ student_ids: studentIds })
   }),
 
+  getWhatsAppLink: (studentId) =>
+    fetchApi(`/api/messages/whatsapp-link/${studentId}`),
+
   getDashboard: () => fetchApi('/api/dashboard/me'),
 }

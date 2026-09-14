@@ -59,8 +59,13 @@ def update_student(student_id: str, update: StudentUpdate, center_id: str = Depe
     student = svc.get(student_id)
     if not student or student.center_id != center_id:
         raise HTTPException(status_code=404, detail="Student not found")
-    
+
     ok = svc.update(student_id, update)
+    # svc.update returns False if the document went missing between get()
+    # and update() (race / concurrent delete) — surface a 404 instead of
+    # silently returning {"success": True}.
+    if not ok:
+        raise HTTPException(status_code=404, detail="Student not found")
     return {"success": True, "student_id": student_id}
 
 
