@@ -26,21 +26,14 @@ The production deployment is intended to provide a working environment for demon
 
 ## 🎥 Product Demo
 
-See DueAlert in action:
+See DueAlert in action: [https://youtube.com/shorts/8afWOpmzvsc?feature=share]
 
 **[▶️ Watch the DueAlert DEMO : ]** 
 
 The demo walks through the complete workflow, including:
 
-- User authentication and institution setup
-- Student management
-- Bulk CSV student import
-- AI-powered payment-risk analysis
-- Predicted payment dates
-- Personalized Hinglish payment reminders
-- Fee collection dashboard
-- Payment-status tracking
-
+- How it works 
+- How AI is integrated in workflow
 
 ---
 
