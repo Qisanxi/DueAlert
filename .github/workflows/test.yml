@@ -1,0 +1,45 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          # numpy==2.5.2 (pinned in requirements.txt) requires Python >=3.12.
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies + pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run unit tests
+        run: |
+          # Dummy credentials so app.config.Settings() can be instantiated
+          # in CI without real Firebase/Gemini keys. _extract_json is a pure
+          # function and never makes network calls.
+          export FIREBASE_PROJECT_ID="ci-dummy-project"
+          export GEMINI_API_KEY="ci-dummy-key"
+          # tests/test_api.py is an integration test that calls
+          # sys.exit(1) on import without FIREBASE_API_KEY and hits a live
+          # backend — skip it in CI.
+          python -m pytest tests/ -v --ignore=tests/test_api.py

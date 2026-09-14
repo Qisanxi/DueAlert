@@ -1,0 +1,109 @@
+rules_version = '2';
+
+// ============================================================================
+// DueAlert — Firestore Security Rules
+// ============================================================================
+//
+// DATA MODEL
+//   centers/{centerId}  →  { owner_uid, name, owner_name, owner_phone,
+//                            address, created_at }
+//   students/{studentId} →  { center_id, name, phone, parent_name, course,
+//                            monthly_fee, due_amount, due_date, notes,
+//                            status, risk_score, predicted_payment_date,
+//                            message_text, created_at, updated_at,
+//                            message_sent_at }
+//
+// ACCESS POLICY
+//   1. A Firebase user owns exactly one center (centers.where owner_uid == uid).
+//   2. A user can read and write their own center document.
+//   3. A user can read, create, update, and delete students whose `center_id`
+//      points to a center they own.
+//   4. Everything else is denied by default.
+//
+// WHY HAVE RULES AT ALL?
+//   The FastAPI backend uses the Firebase Admin SDK, which bypasses these
+//   rules (Admin SDK calls are privileged). The current React frontend uses
+//   Firebase only for Auth and goes through the backend for all data.
+//
+//   These rules exist as a defense-in-depth layer: they prevent data leaks
+//   if Firestore is ever accessed directly from the client (a future feature,
+//   a misconfigured component, or a malicious script in the browser), and
+//   they document the intended access policy in code.
+//
+//   They also keep the project out of Firestore "test mode" (which locks the
+//   database after 30 days) and pass the security-rules check that Google
+//   Cloud runs against production Firebase projects.
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Centers ──────────────────────────────────────────────────────
+    // A center document is accessible only by its owner (owner_uid).
+    match /centers/{centerId} {
+      // Read requires the authenticated user to be the document's owner.
+      allow read: if request.auth != null
+                  && resource.data.owner_uid == request.auth.uid;
+
+      // Create requires the document being written to carry the caller's
+      // own uid as owner_uid — you can't create a center that claims a
+      // different owner.
+      allow create: if request.auth != null
+                    && request.resource.data.owner_uid == request.auth.uid
+                    && request.resource.data.owner_uid is string
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 2
+                    && request.resource.data.owner_name is string
+                    && request.resource.data.owner_phone is string;
+
+      // Update / delete: only the existing owner can do it, and they
+      // cannot transfer ownership to a different uid (owner_uid is
+      // immutable through the client).
+      allow update: if request.auth != null
+                    && resource.data.owner_uid == request.auth.uid
+                    && request.resource.data.owner_uid == resource.data.owner_uid;
+
+      allow delete: if request.auth != null
+                    && resource.data.owner_uid == request.auth.uid;
+    }
+
+    // ─── Students ─────────────────────────────────────────────────────
+    // A student document is accessible only if its center_id points to a
+    // center whose owner_uid matches the authenticated user.
+    //
+    // `get()` here respects the centers rule above: the user can read the
+    // center doc iff they are its owner, which transitively gates student
+    // access on the same ownership check.
+    match /students/{studentId} {
+      // Helper function — returns the owner_uid of the student's center.
+      function centerOwnerUid(centerId) {
+        return get(/databases/$(database)/documents/centers/$(centerId)).data.owner_uid;
+      }
+
+      // For read/update/delete, the document already exists, so we can
+      // read resource.data.center_id.
+      allow read, update, delete: if request.auth != null
+                                  && exists(/databases/$(database)/documents/centers/$(resource.data.center_id))
+                                  && centerOwnerUid(resource.data.center_id) == request.auth.uid;
+
+      // For create, the document doesn't exist yet, so we use
+      // request.resource.data.center_id (the value the client is trying
+      // to write).
+      allow create: if request.auth != null
+                    && exists(/databases/$(database)/documents/centers/$(request.resource.data.center_id))
+                    && centerOwnerUid(request.resource.data.center_id) == request.auth.uid
+                    && request.resource.data.center_id is string
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 1
+                    && request.resource.data.phone is string
+                    && request.resource.data.parent_name is string
+                    && request.resource.data.due_amount is float
+                    && request.resource.data.due_amount >= 0;
+    }
+
+    // ─── Default: deny everything else ───────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

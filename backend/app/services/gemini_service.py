@@ -34,8 +34,10 @@ def _extract_json(text: str) -> dict:
     except json.JSONDecodeError:
         pass
     
-    # Find JSON object with regex
-    match = re.search(r'\{[\s\S]*?\}', text)
+    # Find JSON object with regex — greedy so nested objects/arrays aren't
+    # truncated at the first `}` (which broke on responses like
+    # {"a": {"b": 1}, "c": 2}).
+    match = re.search(r'\{[\s\S]*\}', text)
     if match:
         try:
             return json.loads(match.group(0))
