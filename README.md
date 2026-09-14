@@ -293,8 +293,10 @@ Firebase is used for:
 * Authentication
 * Email verification
 * Firestore-backed application data
+* Firestore security rules (defense-in-depth — see [`Security Considerations`](#-security-considerations))
+* Hosting (frontend)
 
-The backend initializes the Firebase Admin SDK and obtains a Firestore client for application data access.
+The backend initializes the Firebase Admin SDK and obtains a Firestore client for application data access. The frontend ships `firestore.rules` and `firestore.indexes.json` alongside `firebase.json` so that `firebase deploy --only firestore` applies the same access policy and composite indexes to the production project.
 
 ### Google Gemini
 
@@ -368,8 +370,10 @@ DueAlert/
 │   │   ├── lib/
 │   │   └── App.jsx
 │   │
+│   ├── firebase.json          # Hosting + Firestore config
+│   ├── firestore.rules        # Firestore security rules
+│   ├── firestore.indexes.json # Composite indexes (auto-managed)
 │   ├── package.json
-│   ├── firebase.json
 │   └── vite configuration
 │
 ├── sample_student.csv
@@ -680,6 +684,59 @@ Production secrets
 ```
 
 Production credentials should be configured through the hosting provider's environment/secrets management system.
+
+### Firestore Security Rules
+
+Repository path: `frontend/firestore.rules`
+
+Firestore is **not** accessed directly from the React client today — the FastAPI backend talks to Firestore via the Firebase Admin SDK, which bypasses security rules by design. Even so, the rules file is included as a **defense-in-depth** layer: it documents the intended access policy in code, keeps the project out of Firestore "test mode" (which locks the database 30 days after creation), and prevents data leaks if Firestore is ever accessed directly from a browser (a future feature, a misconfigured component, or a malicious script).
+
+Policy summary:
+
+| Collection            | Operation             | Allowed when                                                                 |
+| --------------------- | --------------------- | ---------------------------------------------------------------------------- |
+| `centers/{centerId}` | read / update / delete | `request.auth.uid == resource.data.owner_uid`                                |
+| `centers/{centerId}` | create                | `request.resource.data.owner_uid == request.auth.uid` (you can't claim another owner) |
+| `students/{studentId}` | read / update / delete | The student's `center_id` points to a center where `owner_uid == request.auth.uid` |
+| `students/{studentId}` | create                | Same as above, validated against `request.resource.data.center_id`           |
+| Everything else       | —                     | **Denied by default** (`allow read, write: if false;`)                       |
+
+### Firestore Composite Indexes
+
+Repository path: `frontend/firestore.indexes.json`
+
+Three composite indexes are required by the backend queries (auto-managed via `firebase deploy --only firestore:indexes`):
+
+| # | Collection | Fields                                   | Used by                                                        |
+| - | ---------- | ---------------------------------------- | -------------------------------------------------------------- |
+| 1 | `students` | `center_id ASC, created_at DESC`         | `student_service.list_by_center` — student list (most recent first) |
+| 2 | `students` | `center_id ASC, status ASC, created_at DESC` | `student_service.list_by_center(status)` — filtered student list |
+| 3 | `students` | `center_id ASC, risk_score ASC`          | `dashboard_service.get_stats` — high-risk student count       |
+
+### Deploy Firestore config from `frontend/`
+
+```bash
+cd frontend
+# Install the Firebase CLI once: npm install -g firebase-tools
+firebase login
+
+# Preview the rules + indexes that will be deployed:
+firebase deploy --only firestore --dry-run
+
+# Deploy rules + indexes:
+firebase deploy --only firestore
+```
+
+The `firestore` block in `frontend/firebase.json` is what wires `firebase deploy --only firestore` to the `firestore.rules` and `firestore.indexes.json` files:
+
+```json
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
+```
 
 ---
 

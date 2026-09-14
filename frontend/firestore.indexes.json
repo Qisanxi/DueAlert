@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "_comment": "students.list_by_center — .where('center_id','==',cid).orderBy('created_at',DESC)",
+      "collectionGroup": "students",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "center_id", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "_comment": "students.list_by_center(status) — .where('center_id','==',cid).where('status','==',s).orderBy('created_at',DESC)",
+      "collectionGroup": "students",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "center_id", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "_comment": "dashboard.get_stats high_risk — .where('center_id','==',cid).where('risk_score','>=',70)",
+      "collectionGroup": "students",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "center_id", "order": "ASCENDING" },
+        { "fieldPath": "risk_score", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
