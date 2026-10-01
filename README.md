@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/Qisanxi/DueAlert/actions/workflows/ci.yml/badge.svg)
 ![Tests](https://github.com/Qisanxi/DueAlert/actions/workflows/test.yml/badge.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
 ### AI-Powered Fee Collection Assistant for Coaching & Educational Centers
 
